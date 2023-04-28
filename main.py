@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 
 
-from abc import ABC, abstractmethod
-
 class Storage(ABC):
     def __init__(self, capacity):
         self._items = {}
