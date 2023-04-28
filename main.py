@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 
 
+from abc import ABC, abstractmethod
+
 class Storage(ABC):
     def __init__(self, capacity):
-        self.items = {}
-        self.capacity = capacity
+        self._items = {}
+        self._capacity = capacity
 
     @abstractmethod
     def add(self, name, quantity):
@@ -14,14 +16,27 @@ class Storage(ABC):
     def remove(self, name, quantity):
         pass
 
+    @property
+    def capacity(self):
+        return self._capacity
+
+    @capacity.setter
+    def capacity(self, value):
+        if value < self.get_total_quantity():
+            raise ValueError("New capacity is less than current total quantity.")
+        self._capacity = value
+
     def get_free_space(self):
-        return self.capacity - sum(self.items.values())
+        return self.capacity - self.get_total_quantity()
 
     def get_items(self):
-        return self.items
+        return self._items
+
+    def get_total_quantity(self):
+        return sum(self._items.values())
 
     def get_unique_items_count(self):
-        return len(self.items)
+        return len(self._items)
 
 
 class Store(Storage):
@@ -31,13 +46,13 @@ class Store(Storage):
     def add(self, name, quantity):
         free_space = self.get_free_space()
         if free_space >= quantity:
-            self.items[name] = self.items.get(name, 0) + quantity
+            self._items[name] = self._items.get(name, 0) + quantity
         else:
-            self.items[name] = self.items.get(name, 0) + free_space
+            self._items[name] = self._items.get(name, 0) + free_space
 
     def remove(self, name, quantity):
-        if name in self.items:
-            self.items[name] = max(0, self.items[name] - quantity)
+        if name in self._items:
+            self._items[name] = max(0, self._items[name] - quantity)
 
 
 class Shop(Storage):
@@ -45,15 +60,15 @@ class Shop(Storage):
         super().__init__(capacity)
 
     def add(self, name, quantity):
-        if len(self.items) >= 5 or self.get_free_space() < quantity:
+        if len(self._items) >= 5 or self.get_free_space() < quantity:
             return
-        self.items[name] = self.items.get(name, 0) + quantity
+        self._items[name] = self._items.get(name, 0) + quantity
 
     def remove(self, name, quantity):
-        if name in self.items:
-            self.items[name] = max(0, self.items[name] - quantity)
-            if self.items[name] == 0:
-                del self.items[name]
+        if name in self._items:
+            self._items[name] = max(0, self._items[name] - quantity)
+            if self._items[name] == 0:
+                del self._items[name]
 
 
 class Request:
@@ -80,10 +95,10 @@ class Request:
         self.to_storage = self.get_storage_by_name(words[7])
 
         if not self.from_storage:
-            print(f"Хранилище '{words[5]}' не найдено1")
+            print(f"Хранилище '{words[5]}' не найдено")
             return
         if not self.to_storage:
-            print(f"Хранилище '{words[7]}' не найдено2")
+            print(f"Хранилище '{words[7]}' не найдено")
             return
 
     def get_storage_by_name(self, name):
@@ -106,10 +121,10 @@ def main():
             request = Request(user_input, storage_list)
 
             if request.from_storage is None:
-                print(f"Хранилище '{request.from_storage}' не найдено3")
+                print(f"Хранилище '{request.from_storage}' не найдено")
                 continue
             if request.to_storage is None:
-                print(f"Хранилище '{request.to_storage}' не найдено4")
+                print(f"Хранилище '{request.to_storage}' не найдено")
                 continue
 
             if request.from_storage.get_items().get(request.product, 0) >= request.amount:
