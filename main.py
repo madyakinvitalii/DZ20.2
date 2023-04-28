@@ -23,7 +23,7 @@ class Storage(ABC):
     @capacity.setter
     def capacity(self, value):
         if value < self.get_total_quantity():
-            raise ValueError("New capacity is less than current total quantity.")
+            raise ValueError("Новая вместимость меньше текущего общего количества предметов в хранилище.")
         self._capacity = value
 
     def get_free_space(self):
